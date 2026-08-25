@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro PC Monitor - Frutiger Aero Style</title>
+  <style>
+    /* 背景（鮮やかな青空グラデーション＋縦長サイズ） */
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(180deg, #1d95f2 0%, #76c3ef 45%, #e2f4ff 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+      overflow: hidden;
+      position: relative;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+    }
+
+    /* 背景のガラス風ポップアップ群 */
+    .bg-window {
+      position: absolute;
+      background: rgba(240, 248, 255, 0.65);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      border-radius: 6px 6px 4px 4px;
+      box-shadow: 0 10px 25px rgba(0, 80, 160, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bg-window-header {
+      background: linear-gradient(180deg, #3a91e8 0%, #1963bf 100%);
+      color: white;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 5px 5px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-shadow: 0 1px 1px rgba(0,0,0,0.3);
+    }
+
+    .bg-window-buttons span {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      background: #e0e8f0;
+      border: 1px solid #7090b0;
+      border-radius: 50%;
+      margin-left: 3px;
+      text-align: center;
+      font-size: 7px;
+      line-height: 7px;
+      color: #333;
+    }
+
+    .bg-window-body {
+      padding: 10px;
+      font-size: 11px;
+      color: #0f3057;
+      font-weight: 600;
+    }
+
+    /* ポップアップ配置とふわふわアニメーション */
+    .win-1 {
+      top: 15%;
+      left: 8%;
+      width: 150px;
+      animation: floatWin1 6s ease-in-out infinite;
+    }
+    .win-2 {
+      bottom: 18%;
+      right: 8%;
+      width: 160px;
+      animation: floatWin2 7s ease-in-out infinite;
+    }
+
+    @keyframes floatWin1 {
+      0%, 100% { transform: translateY(0px) rotate(-3deg); }
+      50% { transform: translateY(-10px) rotate(-1deg); }
+    }
+    @keyframes floatWin2 {
+      0%, 100% { transform: translateY(0px) rotate(2deg); }
+      50% { transform: translateY(-12px) rotate(4deg); }
+    }
+
+    /* 背景に浮かぶ大きな泡・水滴 */
+    .bg-bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.9) 0%, rgba(200,235,255,0.4) 40%, rgba(100,180,255,0.15) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.85);
+      box-shadow: inset 0 3px 8px rgba(255, 255, 255, 0.9), 0 8px 20px rgba(0, 100, 200, 0.15);
+      animation: bgFloat linear infinite;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .bb-1 { width: 50px; height: 50px; left: 12%; bottom: -60px; animation-duration: 7s; }
+    .bb-2 { width: 30px; height: 30px; left: 80%; bottom: -40px; animation-duration: 5s; animation-delay: -2s; }
+    .bb-3 { width: 70px; height: 70px; left: 70%; bottom: -80px; animation-duration: 9s; animation-delay: -1s; }
+    .bb-4 { width: 25px; height: 25px; left: 22%; bottom: -30px; animation-duration: 6s; animation-delay: -3s; }
+    .bb-5 { width: 40px; height: 40px; left: 48%; bottom: -50px; animation-duration: 8s; animation-delay: -4s; }
+
+    @keyframes bgFloat {
+      0%   { transform: translateY(0) scale(0.9); opacity: 0; }
+      15%  { opacity: 0.8; }
+      85%  { opacity: 0.8; }
+      100% { transform: translateY(-650px) scale(1.1); opacity: 0; }
+    }
+
+    /* PC全体を浮遊させるコンテナ（最前面に配置） */
+    .pc-floating-wrapper {
+      animation: floatMonitor 4s ease-in-out infinite;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    @keyframes floatMonitor {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+
+    /* PC全体枠（奥行きを表現） */
+    .pc-container {
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+    }
+
+    /* 昔の分厚いモニター本体 */
+    .pc-monitor {
+      width: 100%;
+      height: 230px;
+      background: #d1d5db;
+      border-radius: 18px 18px 12px 12px;
+      padding: 18px 22px 24px 22px;
+      box-sizing: border-box;
+      box-shadow: 
+        inset 3px 3px 0 #f3f4f6,
+        inset -4px -6px 0 #9ca3af,
+        0 14px 0 #6b7280,
+        0 20px 25px rgba(0, 0, 0, 0.4);
+      position: relative;
+      border: 2px solid #9ca3af;
+    }
+
+    /* 画面内部 */
+    .pc-screen {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px / 10px;
+      overflow: hidden;
+      position: relative;
+      border: 5px solid #374151;
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.6);
+      box-sizing: border-box;
+    }
+
+    /* 背景（空） */
+    .screen-sky {
+      position: absolute;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #0284c7 0%, #0369a1 40%, #38bdf8 100%);
+      transition: background 0.4s ease;
+    }
+
+    /* 背景（丘） */
+    .screen-grass-hill {
+      position: absolute;
+      bottom: -30px;
+      left: -20%;
+      width: 140%;
+      height: 100px;
+      background: linear-gradient(180deg, #10b981 0%, #047857 50%, #022c22 100%);
+      border-radius: 50% 50% 0 0;
+      transition: background 0.4s ease;
+    }
+
+    /* 顔パーツのベースエリア */
+    .screen-big-face {
+      position: absolute;
+      top: 52%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(1.5);
+      width: 80px;
+      height: 70px;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* 目 */
+    .big-eyes {
+      position: absolute;
+      top: 5px;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      gap: 20px;
+      animation: blink 4s infinite;
+      height: 8px;
+      align-items: center;
+    }
+
+    .eye-dot {
+      width: 8px;
+      height: 8px;
+      background-color: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.3);
+      transition: all 0.2s ease;
+    }
+
+    @keyframes blink {
+      0%, 90%, 96%, 100% { transform: scaleY(1); }
+      93% { transform: scaleY(0.1); }
+    }
+
+    /* 口 */
+    .big-mouth {
+      position: absolute;
+      bottom: 2px;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 50px;
+      height: 50px;
+      border: 5px solid rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+      box-sizing: border-box;
+      background: transparent;
+      transition: all 0.2s ease;
+    }
+
+    /* 画面のガラス反射 */
+    .pc-screen::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 50%);
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    /* デスクトップアイコン */
+    .desktop-icons {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      z-index: 2;
+    }
+
+    .icon-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 42px;
+    }
+
+    .icon-label {
+      font-size: 8px;
+      color: #ffffff;
+      margin-top: 3px;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+      font-family: sans-serif;
+    }
+
+    .icon-folder {
+      width: 24px;
+      height: 16px;
+      background: #facc15;
+      border-radius: 0 2px 2px 2px;
+      position: relative;
+      box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    .icon-folder::before {
+      content: '';
+      position: absolute;
+      top: -4px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: #eab308;
+      border-radius: 2px 2px 0 0;
+    }
+
+    .icon-trash {
+      width: 16px;
+      height: 18px;
+      background: #94a3b8;
+      border-radius: 1px 1px 3px 3px;
+      position: relative;
+      box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    }
+
+    .icon-trash::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -2px;
+      width: 20px;
+      height: 3px;
+      background: #64748b;
+      border-radius: 2px;
+    }
+
+    .icon-trash::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 10px;
+      height: 11px;
+      border-left: 2px solid #cbd5e1;
+      border-right: 2px solid #cbd5e1;
+      box-sizing: border-box;
+    }
+
+    /* 画面内の水泡 */
+    .screen-bubble {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.95);
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.9);
+      animation: screenFloat 4s infinite ease-in-out;
+      z-index: 2;
+    }
+
+    .sb-1 { width: 12px; height: 12px; left: 25%; bottom: 10px; animation-duration: 3.5s; }
+    .sb-2 { width: 8px;  height: 8px;  left: 60%; bottom: 5px;  animation-duration: 5s; animation-delay: -1.5s; }
+    .sb-3 { width: 14px; height: 14px; left: 82%; bottom: 15px; animation-duration: 4.2s; animation-delay: -0.8s; }
+    .sb-4 { width: 10px; height: 10px; left: 12%; bottom: 8px;  animation-duration: 4.8s; animation-delay: -2.0s; }
+
+    @keyframes screenFloat {
+      0%   { transform: translateY(0) scale(0.8); opacity: 0; }
+      20%  { opacity: 0.95; }
+      80%  { opacity: 0.95; }
+      100% { transform: translateY(-100px) scale(1.1); opacity: 0; }
+    }
+
+    /* 電源LED */
+    .pc-brand-logo {
+      position: absolute;
+      bottom: 8px;
+      right: 20px;
+      width: 10px;
+      height: 10px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 6px #22c55e, inset -1px -1px 2px #15803d;
+    }
+
+    /* 台座 */
+    .pc-stand {
+      width: 180px;
+      height: 16px;
+      background: #9ca3af;
+      margin-top: 12px;
+      border-radius: 4px;
+      box-shadow: inset 0 2px 4px #d1d5db, 0 4px 6px rgba(0,0,0,0.3);
+    }
+
+    .pc-base {
+      width: 220px;
+      height: 12px;
+      background: #d1d5db;
+      border-radius: 2px 2px 6px 6px;
+      border-bottom: 3px solid #9ca3af;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 背景のポップアップ（Welcome to the Net!） -->
+  <div class="bg-window win-1">
+    <div class="bg-window-header">
+      <span>System.exe</span>
+      <div class="bg-window-buttons"><span>&times;</span></div>
+    </div>
+    <div class="bg-window-body">Welcome to the Net!</div>
+  </div>
+
+  <div class="bg-window win-2">
+    <div class="bg-window-header">
+      <span>Notice</span>
+      <div class="bg-window-buttons"><span>&times;</span></div>
+    </div>
+    <div class="bg-window-body">Please click PC!</div>
+  </div>
+
+  <!-- 背景全体の大きな泡・水滴 -->
+  <div class="bg-bubble bb-1"></div>
+  <div class="bg-bubble bb-2"></div>
+  <div class="bg-bubble bb-3"></div>
+  <div class="bg-bubble bb-4"></div>
+  <div class="bg-bubble bb-5"></div>
+
+  <!-- レトロPC本体 -->
+  <div class="pc-floating-wrapper" id="monitorWrapper">
+    <div class="pc-container">
+      <div class="pc-monitor">
+        <div class="pc-screen" id="pcScreen">
+          <div class="screen-sky" id="screenSky"></div>
+          <div class="screen-grass-hill" id="screenHill"></div>
+
+          <!-- 顔パーツ（中央配置・独立構造） -->
+          <div class="screen-big-face">
+            <div class="big-eyes" id="faceEyes">
+              <div class="eye-dot" id="eyeLeft"></div>
+              <div class="eye-dot" id="eyeRight"></div>
+            </div>
+            <div class="big-mouth" id="faceMouth"></div>
+          </div>
+
+          <div class="desktop-icons">
+            <div class="icon-item">
+              <div class="icon-folder"></div>
+              <span class="icon-label">Folder</span>
+            </div>
+            <div class="icon-item">
+              <div class="icon-trash"></div>
+              <span class="icon-label">Trash</span>
+            </div>
+          </div>
+
+          <div class="screen-bubble sb-1"></div>
+          <div class="screen-bubble sb-2"></div>
+          <div class="screen-bubble sb-3"></div>
+          <div class="screen-bubble sb-4"></div>
+        </div>
+        <div class="pc-brand-logo"></div>
+      </div>
+      <div class="pc-stand"></div>
+      <div class="pc-base"></div>
+    </div>
+  </div>
+
+  <script>
+    const wrapper = document.getElementById('monitorWrapper');
+    const sky = document.getElementById('screenSky');
+    const hill = document.getElementById('screenHill');
+    const eyeLeft = document.getElementById('eyeLeft');
+    const eyeRight = document.getElementById('eyeRight');
+    const mouth = document.getElementById('faceMouth');
+
+    let clickCount = 0;
+
+    wrapper.addEventListener('click', () => {
+      clickCount = (clickCount + 1) % 12;
+
+      // デフォルト（通常）の背景色
+      sky.style.background = "linear-gradient(180deg, #0284c7 0%, #0369a1 40%, #38bdf8 100%)";
+      hill.style.background = "linear-gradient(180deg, #10b981 0%, #047857 50%, #022c22 100%)";
+
+      switch(clickCount) {
+        case 1: // 困り顔
+          setFace('worried', 'worried');
+          break;
+        case 2: // 通常顔
+          setFace('normal', 'normal');
+          break;
+        case 3: // 怒り顔
+          setFace('angry', 'angry');
+          break;
+        case 4: // 通常顔
+          setFace('normal', 'normal');
+          break;
+        case 5: // 泣き顔（垂れ目 ＋ への字口）
+          setFace('cry', 'cry');
+          break;
+        case 6: // 通常顔
+          setFace('normal', 'normal');
+          break;
+        case 7: // 驚き顔（お口あんぐり）
+          setFace('surprised', 'surprised');
+          break;
+        case 8: // 通常顔
+          setFace('normal', 'normal');
+          break;
+        case 9: // 【フルティガーエコ】
+          sky.style.background = "linear-gradient(180deg, #0891b2 0%, #0d9488 40%, #2dd4bf 100%)";
+          hill.style.background = "linear-gradient(180deg, #059669 0%, #059669 50%, #064e3b 100%)";
+          setFace('normal', 'normal');
+          break;
+        case 10: // 通常顔
+          setFace('normal', 'normal');
+          break;
+        case 11: // 【DORFic】
+          sky.style.background = "linear-gradient(180deg, #fdb56e 0%, #f98224 100%)";
+          hill.style.background = "linear-gradient(180deg, #f98224 0%, #f06010 100%)";
+          setFace('normal', 'normal');
+          break;
+        default:
+          setFace('normal', 'normal');
+          break;
+      }
+    });
+
+    function setFace(eyeType, mouthType) {
+      // 1. 目
+      if (eyeType === 'normal') {
+        eyeLeft.style.width = "8px"; eyeLeft.style.height = "8px"; eyeLeft.style.borderRadius = "50%"; eyeLeft.style.transform = "none"; eyeLeft.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+        eyeRight.style.width = "8px"; eyeRight.style.height = "8px"; eyeRight.style.borderRadius = "50%"; eyeRight.style.transform = "none"; eyeRight.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+      } else if (eyeType === 'worried') {
+        eyeLeft.style.width = "8px"; eyeLeft.style.height = "8px"; eyeLeft.style.borderRadius = "50%"; eyeLeft.style.transform = "translateY(2px)"; eyeLeft.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+        eyeRight.style.width = "8px"; eyeRight.style.height = "8px"; eyeRight.style.borderRadius = "50%"; eyeRight.style.transform = "translateY(2px)"; eyeRight.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+      } else if (eyeType === 'angry') {
+        eyeLeft.style.width = "10px"; eyeLeft.style.height = "4px"; eyeLeft.style.borderRadius = "2px"; eyeLeft.style.transform = "rotate(20deg)"; eyeLeft.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+        eyeRight.style.width = "10px"; eyeRight.style.height = "4px"; eyeRight.style.borderRadius = "2px"; eyeRight.style.transform = "rotate(-20deg)"; eyeRight.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+      } else if (eyeType === 'cry') {
+        // 泣き顔：垂れ目風
+        eyeLeft.style.width = "10px"; eyeLeft.style.height = "4px"; eyeLeft.style.borderRadius = "2px"; eyeLeft.style.transform = "rotate(-20deg)"; eyeLeft.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+        eyeRight.style.width = "10px"; eyeRight.style.height = "4px"; eyeRight.style.borderRadius = "2px"; eyeRight.style.transform = "rotate(20deg)"; eyeRight.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+      } else if (eyeType === 'surprised') {
+        eyeLeft.style.width = "9px"; eyeLeft.style.height = "11px"; eyeLeft.style.borderRadius = "50%"; eyeLeft.style.transform = "none"; eyeLeft.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+        eyeRight.style.width = "9px"; eyeRight.style.height = "11px"; eyeRight.style.borderRadius = "50%"; eyeRight.style.transform = "none"; eyeRight.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
+      }
+
+      // 2. 口
+      if (mouthType === 'normal') {
+        mouth.style.width = "50px";
+        mouth.style.height = "50px";
+        mouth.style.border = "5px solid rgba(255, 255, 255, 0.9)";
+        mouth.style.borderRadius = "50%";
+        mouth.style.clipPath = "inset(50% 0 0 0)";
+        mouth.style.background = "transparent";
+      } else if (mouthType === 'worried') {
+        mouth.style.width = "40px";
+        mouth.style.height = "25px";
+        mouth.style.border = "5px solid rgba(255, 255, 255, 0.9)";
+        mouth.style.borderRadius = "50%";
+        mouth.style.clipPath = "inset(0 0 50% 0)";
+        mouth.style.background = "transparent";
+      } else if (mouthType === 'angry') {
+        mouth.style.width = "40px";
+        mouth.style.height = "22px";
+        mouth.style.border = "5px solid rgba(255, 255, 255, 0.9)";
+        mouth.style.borderRadius = "50%";
+        mouth.style.clipPath = "inset(0 0 55% 0)";
+        mouth.style.background = "transparent";
+      } else if (mouthType === 'cry') {
+        // 泣き顔（への字口）
+        mouth.style.width = "44px";
+        mouth.style.height = "30px";
+        mouth.style.border = "5px solid rgba(255, 255, 255, 0.9)";
+        mouth.style.borderRadius = "50%";
+        mouth.style.clipPath = "inset(0 0 55% 0)";
+        mouth.style.background = "transparent";
+      } else if (mouthType === 'surprised') {
+        // 驚き顔（お口あんぐり）
+        mouth.style.width = "30px";
+        mouth.style.height = "30px";
+        mouth.style.border = "4px solid rgba(255, 255, 255, 0.9)";
+        mouth.style.borderRadius = "50%";
+        mouth.html = "";
+        mouth.style.clipPath = "none";
+        mouth.style.background = "rgba(0, 0, 0, 0.3)";
+      }
+    }
+
+    setFace('normal', 'normal');
+  </script>
+</body>
+</html>
