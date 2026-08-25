@@ -469,46 +469,34 @@
     let clickCount = 0;
 
     wrapper.addEventListener('click', () => {
-      clickCount = (clickCount + 1) % 12;
+      clickCount = (clickCount + 1) % 7;
 
       // デフォルト（通常）の背景色
       sky.style.background = "linear-gradient(180deg, #0284c7 0%, #0369a1 40%, #38bdf8 100%)";
       hill.style.background = "linear-gradient(180deg, #10b981 0%, #047857 50%, #022c22 100%)";
 
       switch(clickCount) {
+        case 0: // 通常顔（1周回った時）
+          setFace('normal', 'normal');
+          break;
         case 1: // 困り顔
           setFace('worried', 'worried');
           break;
-        case 2: // 通常顔
-          setFace('normal', 'normal');
-          break;
-        case 3: // 怒り顔
+        case 2: // 怒り顔
           setFace('angry', 'angry');
           break;
-        case 4: // 通常顔
-          setFace('normal', 'normal');
-          break;
-        case 5: // 泣き顔（垂れ目 ＋ への字口）
+        case 3: // 泣き顔
           setFace('cry', 'cry');
           break;
-        case 6: // 通常顔
-          setFace('normal', 'normal');
-          break;
-        case 7: // 驚き顔（お口あんぐり）
+        case 4: // 驚き顔
           setFace('surprised', 'surprised');
           break;
-        case 8: // 通常顔
-          setFace('normal', 'normal');
-          break;
-        case 9: // 【フルティガーエコ】
+        case 5: // 【フルティガーエコ】
           sky.style.background = "linear-gradient(180deg, #0891b2 0%, #0d9488 40%, #2dd4bf 100%)";
           hill.style.background = "linear-gradient(180deg, #059669 0%, #059669 50%, #064e3b 100%)";
           setFace('normal', 'normal');
           break;
-        case 10: // 通常顔
-          setFace('normal', 'normal');
-          break;
-        case 11: // 【DORFic】
+        case 6: // 【DORFic】
           sky.style.background = "linear-gradient(180deg, #fdb56e 0%, #f98224 100%)";
           hill.style.background = "linear-gradient(180deg, #f98224 0%, #f06010 100%)";
           setFace('normal', 'normal');
@@ -531,7 +519,6 @@
         eyeLeft.style.width = "10px"; eyeLeft.style.height = "4px"; eyeLeft.style.borderRadius = "2px"; eyeLeft.style.transform = "rotate(20deg)"; eyeLeft.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
         eyeRight.style.width = "10px"; eyeRight.style.height = "4px"; eyeRight.style.borderRadius = "2px"; eyeRight.style.transform = "rotate(-20deg)"; eyeRight.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
       } else if (eyeType === 'cry') {
-        // 泣き顔：垂れ目風
         eyeLeft.style.width = "10px"; eyeLeft.style.height = "4px"; eyeLeft.style.borderRadius = "2px"; eyeLeft.style.transform = "rotate(-20deg)"; eyeLeft.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
         eyeRight.style.width = "10px"; eyeRight.style.height = "4px"; eyeRight.style.borderRadius = "2px"; eyeRight.style.transform = "rotate(20deg)"; eyeRight.style.boxShadow = "0 0 6px rgba(0, 0, 0, 0.3)";
       } else if (eyeType === 'surprised') {
@@ -562,7 +549,6 @@
         mouth.style.clipPath = "inset(0 0 55% 0)";
         mouth.style.background = "transparent";
       } else if (mouthType === 'cry') {
-        // 泣き顔（への字口）
         mouth.style.width = "44px";
         mouth.style.height = "30px";
         mouth.style.border = "5px solid rgba(255, 255, 255, 0.9)";
@@ -570,12 +556,10 @@
         mouth.style.clipPath = "inset(0 0 55% 0)";
         mouth.style.background = "transparent";
       } else if (mouthType === 'surprised') {
-        // 驚き顔（お口あんぐり）
         mouth.style.width = "30px";
         mouth.style.height = "30px";
         mouth.style.border = "4px solid rgba(255, 255, 255, 0.9)";
         mouth.style.borderRadius = "50%";
-        mouth.html = "";
         mouth.style.clipPath = "none";
         mouth.style.background = "rgba(0, 0, 0, 0.3)";
       }
